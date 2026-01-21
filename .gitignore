@@ -1,0 +1,5 @@
+**/bld/**
+**/build/**
+
+.clangd
+.vimrc

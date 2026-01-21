@@ -1,0 +1,20 @@
+fn test () {}
+
+fn start () {
+    var x = 10;
+
+    var xelse = "";
+    var var10 = 20;
+    mut var myfn = test;
+    myfn ();
+
+    if (x == 10) {
+    } else if (x >= 20) {
+    }
+
+    for (var x = 0; x < 50; x++) {
+        print x;
+    }
+
+    print "Hello, Spark! lkjsdflkjsdf lksjdflkjsd";
+}
