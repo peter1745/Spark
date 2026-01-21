@@ -241,3 +241,12 @@ spk_tokenize_source (const char *src, size_t len)
     return ctx.tokens;
 }
 
+void
+spk_free_token_list (spk_token_list_t *list)
+{
+    for (size_t i = 0; i < list->count; ++i) {
+        free (list->elems[i].value);
+    }
+
+    free (list->elems);
+}

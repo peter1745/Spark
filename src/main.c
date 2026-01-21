@@ -88,6 +88,7 @@ spk_execute_file (const char *fpath)
         spk_print_token (tokens.elems[i]);
     }
 
+    spk_free_token_list (&tokens);
     free (file.data);
     return EXIT_SUCCESS;
 }

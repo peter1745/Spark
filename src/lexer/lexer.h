@@ -3,10 +3,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-// FIXME: Replace all individual keyword types
-//        with a single "keyword" type which
-//        simply matches a pre-determined
-//        list of reserved keywords
+// TODO: Consider if the lexer should be more intricate
+//       about the grammar... E.g should we define operator
+//       and keyword tokens explicitly? Advantage of early-out
+//       in case of syntax errors?
 
 #define SPK_TOKEN_TYPE(...)
 #define SPK_TOKEN_ENUM_ITER() \
@@ -40,4 +40,5 @@ typedef struct spk_token_list_s {
 
 void spk_print_token (const spk_token_t token);
 spk_token_list_t spk_tokenize_source (const char *src, size_t len);
+void spk_free_token_list (spk_token_list_t *list);
 
