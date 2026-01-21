@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include "token.h"
 #include "../keywords.h"
 
 #include <stdio.h>
@@ -189,25 +190,6 @@ spk_consume_identifier (spk_lexer_ctx_t *ctx)
     }
 
     spk_insert_token (ctx, SPK_TOKEN_TYPE_IDENTIFIER);
-}
-
-void
-spk_print_token (const spk_token_t token)
-{
-#define SPK_TOKEN_TYPE(name, ...) \
-    case name: \
-        type = #name; \
-        break;
-    
-    const char* type = "Unknown";
-    switch (token.type) {
-        SPK_TOKEN_ENUM_ITER()
-        default:
-            break;
-    }
-#undef SPK_TOKEN_TYPE
-
-    printf ("Token(%s, %d, '%s')\n", type, token.line, token.value);
 }
 
 spk_token_list_t

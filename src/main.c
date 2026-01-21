@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include "interpreter/token.h"
 #include "interpreter/lexer.h"
 #include "interpreter/parser.h"
 

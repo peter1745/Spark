@@ -13,6 +13,7 @@ target_sources(spk-interp
     PRIVATE
         main.c
 
+        interpreter/token.c
         interpreter/lexer.c
         interpreter/expressions.c
         interpreter/printer.c
