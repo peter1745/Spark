@@ -53,7 +53,7 @@ spk_primary (spk_parser_ctx_t *ctx)
         auto value = ctx->tokens->elems[prev];
         auto expr = spk_alloc_expr (SPK_EXPR_TYPE_LITERAL);
         expr->literal = (spk_literal_expr_t) {
-            .value = value.value
+            .value = value.literal
         };
         return expr;
     }

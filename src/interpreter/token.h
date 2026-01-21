@@ -40,12 +40,36 @@ typedef enum {
 } SPK_token_type;
 #undef SPK_TOKEN_TYPE
 
-// TODO: Store actual literals, not just text
+typedef enum {
+    SPK_TOKEN_LITERAL_EMPTY,
+    SPK_TOKEN_LITERAL_STRING,
+    SPK_TOKEN_LITERAL_INTEGER
+} SPK_token_literal_type;
+
+typedef struct spk_token_string_literal_s {
+    char *value;
+} spk_token_string_literal_t;
+
+typedef struct spk_token_integer_literal_s {
+    int32_t value;
+} spk_token_integer_literal_t;
+
+typedef struct spk_token_literal_s {
+    SPK_token_literal_type type;
+    union {
+        spk_token_string_literal_t  string;
+        spk_token_integer_literal_t integer;
+    };
+} spk_token_literal_t;
+
 typedef struct spk_token_s {
-    SPK_token_type type;
-    char          *value;
-    uint32_t       line;
+    SPK_token_type      type;
+    char                *value;
+    spk_token_literal_t literal;
+    uint32_t            line;
 } spk_token_t;
 
 
+char *spk_token_literal_to_string (const spk_token_literal_t *literal);
 void spk_print_token (const spk_token_t token);
+

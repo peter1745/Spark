@@ -8,7 +8,7 @@
 typedef struct spk_expr_s spk_expr_t;
 
 typedef struct spk_literal_expr_s {
-    char *value;
+    spk_token_literal_t value;
 } spk_literal_expr_t;
 
 typedef struct spk_grouping_expr_s {

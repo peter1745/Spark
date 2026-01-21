@@ -83,19 +83,38 @@ spk_insert_token (spk_lexer_ctx_t *ctx, SPK_token_type type)
         memcpy (buf, ctx->start, len - 1);
     }
 
-    if (type == SPK_TOKEN_TYPE_IDENTIFIER) {
-        // Check if buf matches any keywords
-        for (size_t i = 0; i < SPK_COUNTOF (spk_reserved_keywords); ++i) {
-            if (strcmp (spk_reserved_keywords[i], buf) == 0) {
-                type = SPK_TOKEN_TYPE_KEYWORD;
-                break;
+    spk_token_literal_t literal = {
+        .type = SPK_TOKEN_LITERAL_EMPTY
+    };
+
+    switch (type) {
+        case SPK_TOKEN_TYPE_IDENTIFIER:
+            // Check if buf matches any keywords
+            for (size_t i = 0; i < SPK_COUNTOF (spk_reserved_keywords); ++i) {
+                if (strcmp (spk_reserved_keywords[i], buf) == 0) {
+                    type = SPK_TOKEN_TYPE_KEYWORD;
+                    break;
+                }
             }
-        }
+            break;
+        case SPK_TOKEN_TYPE_STRING:
+            literal.type = SPK_TOKEN_LITERAL_STRING;
+            literal.string.value = buf;
+            break;
+        case SPK_TOKEN_TYPE_INTEGER:
+            literal.type = SPK_TOKEN_LITERAL_INTEGER;
+            // atoi should be safe here as we've already
+            // verified that the token is a valid integer
+            literal.integer.value = atoi (buf);
+            break;
+        default:
+            break;
     }
 
     list->elems[list->count] = (spk_token_t) {
         .type = type,
         .value = buf,
+        .literal = literal,
         .line = curr_line
     };
     list->count++;

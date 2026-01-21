@@ -60,11 +60,7 @@ spk_parenthesize_value (const char *name, ...)
 static char *
 spk_process_literal (const spk_literal_expr_t *expr)
 {
-    if (!expr->value) {
-        return "nil";
-    }
-
-    return expr->value;
+    return spk_token_literal_to_string(&expr->value);
 }
 
 static char *
