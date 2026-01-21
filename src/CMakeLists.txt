@@ -13,11 +13,10 @@ target_sources(spk-interp
     PRIVATE
         main.c
 
-        lexer/lexer.c
-
-        parser/expressions.c
-        parser/printer.c
-        parser/parser.c)
+        interpreter/lexer.c
+        interpreter/expressions.c
+        interpreter/printer.c
+        interpreter/parser.c)
 
 target_compile_options(spk-interp
     PRIVATE

@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "lexer/lexer.h"
-#include "parser/parser.h"
+#include "interpreter/lexer.h"
+#include "interpreter/parser.h"
 
 /*
  - Lexing / Scanning:

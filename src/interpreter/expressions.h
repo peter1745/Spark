@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../lexer/lexer.h"
+// FIXME: Move tokens into their own header
+#include "lexer.h"
 
 /* grammar/expr.ebnf */
 

@@ -40,6 +40,7 @@ typedef enum {
 } SPK_token_type;
 #undef SPK_TOKEN_TYPE
 
+// TODO: Store actual literals, not just text
 typedef struct spk_token_s {
     SPK_token_type type;
     char          *value;

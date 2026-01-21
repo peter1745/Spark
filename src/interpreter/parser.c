@@ -1,7 +1,7 @@
 #include "parser.h"
 #include "expressions.h"
 #include "printer.h"
-#include "../lexer/lexer.h"
+#include "lexer.h"
 
 #include <stdio.h>
 #include <stdlib.h>
