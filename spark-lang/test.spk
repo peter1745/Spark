@@ -1,3 +1,6 @@
+var x = 10 + 15 * 20 - (4 / 2);
+var y = x >= 10;
+
 fn test () {}
 
 fn start () {

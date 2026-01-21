@@ -31,6 +31,21 @@ spk_lexer_advance (spk_lexer_ctx_t *ctx)
     return *(ctx->current++);
 }
 
+static bool
+spk_lexer_match (spk_lexer_ctx_t *ctx, char c)
+{
+    if (spk_lexer_at_end (ctx)) {
+        return false;
+    }
+
+    if (*ctx->current == c) {
+        spk_lexer_advance (ctx);
+        return true;
+    }
+
+    return false;
+}
+
 static void
 spk_token_list_grow (spk_token_list_t *list, size_t cap)
 {
@@ -214,6 +229,63 @@ spk_tokenize_source (const char *src, size_t len)
             case '#':
                 spk_consume_comment (&ctx);
                 continue;
+            case '=':
+                spk_insert_token (&ctx,
+                        spk_lexer_match (&ctx, '=') ?
+                            SPK_TOKEN_TYPE_EQUAL_EQUAL :
+                            SPK_TOKEN_TYPE_EQUAL);
+                break;
+            case '&':
+                spk_insert_token (&ctx, SPK_TOKEN_TYPE_AND);
+                break;
+            case '|':
+                spk_insert_token (&ctx, SPK_TOKEN_TYPE_OR);
+                break;
+            case '!':
+                spk_insert_token (&ctx,
+                        spk_lexer_match (&ctx, '=') ?
+                            SPK_TOKEN_TYPE_NOT_EQUAL :
+                            SPK_TOKEN_TYPE_NOT);
+                break;
+            case '>':
+                spk_insert_token (&ctx,
+                        spk_lexer_match (&ctx, '=') ?
+                            SPK_TOKEN_TYPE_GREATER_EQUAL :
+                            SPK_TOKEN_TYPE_GREATER);
+                break;
+            case '<':
+                spk_insert_token (&ctx,
+                        spk_lexer_match (&ctx, '=') ?
+                            SPK_TOKEN_TYPE_LESS_EQUAL :
+                            SPK_TOKEN_TYPE_LESS);
+                break;
+            case '+':
+                spk_insert_token (&ctx, SPK_TOKEN_TYPE_PLUS);
+                break;
+            case '-':
+                spk_insert_token (&ctx, SPK_TOKEN_TYPE_MINUS);
+                break;
+            case '/':
+                spk_insert_token (&ctx, SPK_TOKEN_TYPE_DIVIDE);
+                break;
+            case '*':
+                spk_insert_token (&ctx, SPK_TOKEN_TYPE_MULTIPLY);
+                break;
+            case '(':
+                spk_insert_token (&ctx, SPK_TOKEN_TYPE_LEFT_PAREN);
+                break;
+            case ')':
+                spk_insert_token (&ctx, SPK_TOKEN_TYPE_RIGHT_PAREN);
+                break;
+            case '{':
+                spk_insert_token (&ctx, SPK_TOKEN_TYPE_LEFT_BRACE);
+                break;
+            case '}':
+                spk_insert_token (&ctx, SPK_TOKEN_TYPE_RIGHT_BRACE);
+                break;
+            case ';':
+                spk_insert_token (&ctx, SPK_TOKEN_TYPE_SEMICOLON);
+                break;
             case '"':
                 spk_try_consume_string (&ctx);
                 break;
@@ -230,7 +302,8 @@ spk_tokenize_source (const char *src, size_t len)
                 } else if (spk_is_valid_ident_start (curr)) {
                     spk_consume_identifier (&ctx);
                 } else {
-                    spk_insert_token (&ctx, SPK_TOKEN_TYPE_CHAR);
+                    spk_lexer_report_err (curr_line, "Unknown character");
+                    printf ("Character = %c\n", curr);
                 }
 
                 break;

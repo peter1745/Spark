@@ -3,6 +3,7 @@
 #include <assert.h>
 
 #include "lexer/lexer.h"
+#include "parser/parser.h"
 
 /*
  - Lexing / Scanning:
@@ -87,6 +88,8 @@ spk_execute_file (const char *fpath)
     for (size_t i = 0; i < tokens.count; ++i) {
         spk_print_token (tokens.elems[i]);
     }
+
+    spk_parser_recursive_descent (&tokens);
 
     spk_free_token_list (&tokens);
     free (file.data);

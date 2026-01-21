@@ -107,12 +107,24 @@ spk_process_expression (const spk_expr_t *expr)
     return res;
 }
 
-void spk_print_ast (const spk_expr_t *expr)
+static const char *
+spk_expression_type_str (SPK_expr_type type)
 {
-    printf ("AST:\n");
+    switch (type) {
+        case SPK_EXPR_TYPE_LITERAL: return "SPK_EXPR_TYPE_LITERAL";
+        case SPK_EXPR_TYPE_UNARY: return "SPK_EXPR_TYPE_UNARY";
+        case SPK_EXPR_TYPE_GROUPING: return "SPK_EXPR_TYPE_GROUPING";
+        case SPK_EXPR_TYPE_BINARY: return "SPK_EXPR_TYPE_BINARY";
+        default: return "Unknown";
+    }
+}
 
+void spk_print_expression (const spk_expr_t *expr)
+{
     char *expr_str = spk_process_expression (expr);
-    printf ("\tExpression: %s\n", expr_str);
+    printf ("Expression:\n");
+    printf ("\tType: %s\n", spk_expression_type_str (expr->type));
+    printf ("\t%s\n", expr_str);
     free (expr_str);
 }
 

@@ -16,12 +16,12 @@ target_sources(spk-interp
         lexer/lexer.c
 
         parser/expressions.c
-        parser/printer.c)
+        parser/printer.c
+        parser/parser.c)
 
 target_compile_options(spk-interp
     PRIVATE
         -std=gnu23
-        -Og
         -g3
         -Wall
         -Wextra
