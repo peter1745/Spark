@@ -17,6 +17,7 @@ target_sources(spk-interp
         interpreter/lexer.c
         interpreter/expressions.c
         interpreter/printer.c
+        interpreter/ast_interpreter.c
         interpreter/parser.c)
 
 target_compile_options(spk-interp

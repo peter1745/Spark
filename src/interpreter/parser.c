@@ -2,6 +2,7 @@
 #include "expressions.h"
 #include "printer.h"
 #include "lexer.h"
+#include "ast_interpreter.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -198,6 +199,20 @@ spk_parser_recursive_descent (const spk_token_list_t *tokens)
 
         if (expr) {
             spk_print_expression (expr);
+
+            auto result = spk_evaluate_expression (expr);
+
+            switch (result.type) {
+                case SPK_TOKEN_LITERAL_INTEGER:
+                    printf ("Evaluated to %d\n", result.integer.value);
+                    break;
+                case SPK_TOKEN_LITERAL_STRING:
+                    printf ("Evaluated to %s\n", result.string.value);
+                    break;
+                default:
+                    printf ("Couldn't evaluate. Invalid expression?\n");
+                    break;
+            }
         }
 
         ctx.current++;
