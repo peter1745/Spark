@@ -111,6 +111,15 @@ spk_primary (spk_parser_ctx_t *ctx)
         return grouping;
     }
 
+    if (spk_match_any (ctx, 1, SPK_TOKEN_TYPE_IDENTIFIER)) {
+        auto name = spk_prev (ctx);
+        auto expr = spk_alloc_expr (SPK_EXPR_TYPE_VAR);
+        expr->var = (spk_var_expr_t) {
+            .name = *name
+        };
+        return expr;
+    }
+
     return nullptr;
 }
 
@@ -282,11 +291,18 @@ spk_statement (spk_parser_ctx_t *ctx)
     if (spk_match_any (ctx, 1, SPK_TOKEN_TYPE_PRINT)) {
         return spk_print_statement (ctx);
     }
-    else if (spk_match_any(ctx, 1, SPK_TOKEN_TYPE_VAR)) {
+
+    return spk_expression_statement (ctx);
+}
+
+static spk_statement_t
+spk_declaration (spk_parser_ctx_t *ctx)
+{
+    if (spk_match_any(ctx, 1, SPK_TOKEN_TYPE_VAR)) {
         return spk_variable_statement (ctx);
     }
 
-    return spk_expression_statement (ctx);
+    return spk_statement (ctx);
 }
 
 void
@@ -298,7 +314,7 @@ spk_parser_recursive_descent (const spk_token_list_t tokens)
     };
 
     while (!spk_parser_at_end (&ctx)) {
-        auto statement = spk_statement (&ctx);
+        auto statement = spk_declaration (&ctx);
         if (statement.type != SPK_STATEMENT_TYPE_EMPTY) {
             darray_append (ctx.statements, &statement);
         }

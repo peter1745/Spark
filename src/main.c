@@ -86,9 +86,9 @@ spk_execute_file (const char *fpath)
         printf ("Lexer exited with errors.\n");
         return EXIT_FAILURE;
     }
-    for (size_t i = 0; i < tokens->count; ++i) {
+    /*for (size_t i = 0; i < tokens->count; ++i) {
         spk_print_token (darray_elem (tokens, i));
-    }
+    }*/
 
     spk_parser_recursive_descent (tokens);
     darray_free (tokens);

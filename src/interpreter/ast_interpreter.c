@@ -2,8 +2,65 @@
 #include "expressions.h"
 #include "statements.h"
 
+#include "../utils/darray.h"
+
 #include <stdio.h>
+#include <string.h>
 #include <assert.h>
+
+typedef struct spk_var_storage_s {
+    const char *name;
+    spk_token_literal_t value;
+} spk_var_storage_t;
+
+typedef struct spk_global_reg_s {
+    darray_t *var_storage; // [spk_var_storage_t, ...]
+} spk_global_reg_t;
+
+static spk_global_reg_t global_reg = {
+    .var_storage = nullptr
+};
+
+static const spk_token_literal_t *
+spk_global_reg_find_var (const char *name)
+{
+    // FIXME: Linear search = bad
+    for (size_t i = 0; i < global_reg.var_storage->count; ++i) {
+        spk_var_storage_t *storage = darray_elem (global_reg.var_storage, i);
+        if (strcmp (storage->name, name) == 0) {
+            return &storage->value;
+        }
+    }
+
+    return nullptr;
+}
+
+static void
+spk_global_reg_add_var (const spk_var_statement_t *var)
+{
+    if (!global_reg.var_storage) {
+        global_reg.var_storage = darray_empty (sizeof (spk_var_storage_t));
+    }
+
+    if (spk_global_reg_find_var (var->name.value)) {
+        // Variable already declared
+        assert (false);
+        return;
+    }
+
+    spk_var_storage_t storage = {
+        .name = strdup (var->name.value),
+        .value = {
+            .type = SPK_TOKEN_LITERAL_EMPTY
+        }
+    };
+
+    if (var->initializer) {
+        storage.value = spk_evaluate_expression (var->initializer);
+    }
+
+    darray_append (global_reg.var_storage, &storage);
+}
 
 static spk_token_literal_t
 spk_evaluate_literal (const spk_literal_expr_t *expr)
@@ -103,6 +160,18 @@ spk_evaluate_expression (const spk_expr_t *expr)
         case SPK_EXPR_TYPE_BINARY:
             evaluated_value = spk_evaluate_binary (&expr->binary);
             break;
+        case SPK_EXPR_TYPE_VAR:
+            auto var_storage = spk_global_reg_find_var (expr->var.name.value);
+
+            if (!var_storage) {
+                printf ("Error trying to evaluate unknown variable %s!\n", expr->var.name.value);
+                break;
+            }
+
+            evaluated_value = *var_storage;
+            break;
+        default:
+            assert (false);
     }
 
     return evaluated_value;
@@ -115,6 +184,9 @@ spk_interpret_statement (const spk_statement_t *stmt)
         case SPK_STATEMENT_TYPE_PRINT:
             auto msg = spk_evaluate_expression (stmt->print.expr);
             switch (msg.type) {
+                case SPK_TOKEN_LITERAL_EMPTY:
+                    printf ("empty\n");
+                    break;
                 case SPK_TOKEN_LITERAL_INTEGER:
                     printf ("%d\n", msg.integer.value);
                     break;
@@ -145,9 +217,10 @@ spk_interpret_statement (const spk_statement_t *stmt)
 #endif
             break;
         case SPK_STATEMENT_TYPE_VAR:
-            printf ("Declaring variable %s", stmt->var.name.value);
+            //printf ("Declaring variable %s", stmt->var.name.value);
+            spk_global_reg_add_var (&stmt->var);
 
-            if (stmt->var.initializer) {
+            /*if (stmt->var.initializer) {
                 printf (" with value");
                 auto value = spk_evaluate_expression(stmt->var.initializer);
                 switch (value.type) {
@@ -162,7 +235,7 @@ spk_interpret_statement (const spk_statement_t *stmt)
                 }
             } else {
                 printf ("\n");
-            }
+            }*/
             break;
         default:
             assert (false);

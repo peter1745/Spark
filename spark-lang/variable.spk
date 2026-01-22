@@ -1,4 +1,9 @@
 var x = (10 + 15) * 2 - 1;
 var y = "Hello, World!";
+var z = y;
+var w;
 print x;
 print y;
+print z;
+print w;
+

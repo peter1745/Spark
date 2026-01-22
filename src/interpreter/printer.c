@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <assert.h>
 
 static char *
 spk_process_expression (const spk_expr_t *expr);
@@ -98,6 +99,8 @@ spk_process_expression (const spk_expr_t *expr)
         case SPK_EXPR_TYPE_BINARY:
             res = spk_process_binary (&expr->binary);
             break;
+        default:
+            assert (false);
     }
 
     return res;
