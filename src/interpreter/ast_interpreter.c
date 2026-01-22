@@ -144,6 +144,26 @@ spk_interpret_statement (const spk_statement_t *stmt)
             (void)result;
 #endif
             break;
+        case SPK_STATEMENT_TYPE_VAR:
+            printf ("Declaring variable %s", stmt->var.name.value);
+
+            if (stmt->var.initializer) {
+                printf (" with value");
+                auto value = spk_evaluate_expression(stmt->var.initializer);
+                switch (value.type) {
+                    case SPK_TOKEN_LITERAL_INTEGER:
+                        printf (" %d\n", value.integer.value);
+                        break;
+                    case SPK_TOKEN_LITERAL_STRING:
+                        printf (" \"%s\"\n", value.string.value);
+                        break;
+                    default:
+                        assert (false);
+                }
+            } else {
+                printf ("\n");
+            }
+            break;
         default:
             assert (false);
     }

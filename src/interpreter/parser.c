@@ -21,12 +21,12 @@ spk_parser_at_end (spk_parser_ctx_t *ctx)
     return ctx->current >= ctx->tokens->count;
 }
 
-static void
+static spk_token_t *
 spk_consume (spk_parser_ctx_t *ctx, SPK_token_type type, const char *err)
 {
     if (spk_parser_at_end (ctx)) {
         printf ("Reached end of file...\n");
-        return;
+        return nullptr;
     }
 
     spk_token_t *token = darray_elem(ctx->tokens, ctx->current++);
@@ -45,6 +45,7 @@ spk_consume (spk_parser_ctx_t *ctx, SPK_token_type type, const char *err)
             printf ("\tNext: %s\n", spk_token_type_str (next->type));
         }
     }
+    return token;
 }
 
 static bool
@@ -254,10 +255,35 @@ spk_print_statement (spk_parser_ctx_t *ctx)
 }
 
 static spk_statement_t
+spk_variable_statement (spk_parser_ctx_t *ctx)
+{
+    auto ident = spk_consume (ctx, SPK_TOKEN_TYPE_IDENTIFIER, "Expected identifier name after 'var'");
+
+    spk_expr_t *expr = nullptr;
+    if (spk_match_any (ctx, 1, SPK_TOKEN_TYPE_EQUAL)) {
+        // Combined declaration / assignment
+        expr = spk_expression (ctx);
+    }
+
+    spk_consume (ctx, SPK_TOKEN_TYPE_SEMICOLON, "Expected ';' after variable expression.");
+    return (spk_statement_t) {
+        .type = SPK_STATEMENT_TYPE_VAR,
+        .var = {
+            .name = *ident,
+            .initializer = expr,
+            .mutable = true
+        }
+    };
+}
+
+static spk_statement_t
 spk_statement (spk_parser_ctx_t *ctx)
 {
     if (spk_match_any (ctx, 1, SPK_TOKEN_TYPE_PRINT)) {
         return spk_print_statement (ctx);
+    }
+    else if (spk_match_any(ctx, 1, SPK_TOKEN_TYPE_VAR)) {
+        return spk_variable_statement (ctx);
     }
 
     return spk_expression_statement (ctx);
