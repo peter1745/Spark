@@ -35,6 +35,12 @@ spk_match_any (spk_parser_ctx_t *ctx, ...)
     return false;
 }
 
+static spk_token_t *
+spk_prev (spk_parser_ctx_t *ctx)
+{
+    return &ctx->tokens->elems[ctx->current - 1];
+}
+
 static spk_expr_t *
 spk_alloc_expr (SPK_expr_type type)
 {
@@ -49,12 +55,11 @@ spk_expression (spk_parser_ctx_t *ctx);
 static spk_expr_t *
 spk_primary (spk_parser_ctx_t *ctx)
 {
-    size_t prev = ctx->current;
     if (spk_match_any (ctx, 2, SPK_TOKEN_TYPE_INTEGER, SPK_TOKEN_TYPE_STRING)) {
-        auto value = ctx->tokens->elems[prev];
+        auto value = spk_prev (ctx);
         auto expr = spk_alloc_expr (SPK_EXPR_TYPE_LITERAL);
         expr->literal = (spk_literal_expr_t) {
-            .value = value.literal
+            .value = value->literal
         };
         return expr;
     }
@@ -77,13 +82,12 @@ spk_primary (spk_parser_ctx_t *ctx)
 static spk_expr_t *
 spk_unary (spk_parser_ctx_t *ctx)
 {
-    size_t prev = ctx->current;
     if (spk_match_any (ctx, 2, SPK_TOKEN_TYPE_NOT, SPK_TOKEN_TYPE_MINUS)) {
-        auto operator = ctx->tokens->elems[prev];
+        auto operator = spk_prev (ctx);
         auto right = spk_unary (ctx);
         auto expr = spk_alloc_expr (SPK_EXPR_TYPE_UNARY);
         expr->unary = (spk_unary_expr_t) {
-            .operator = operator,
+            .operator = *operator,
             .right = right
         };
     }
@@ -96,16 +100,15 @@ spk_factor (spk_parser_ctx_t *ctx)
 {
     auto expr = spk_unary (ctx);
 
-    size_t prev = ctx->current;
     while (spk_match_any (ctx, 2, SPK_TOKEN_TYPE_DIVIDE,
                                   SPK_TOKEN_TYPE_MULTIPLY)) {
-        auto operator = ctx->tokens->elems[prev];
+        auto operator = spk_prev (ctx);
         auto left = expr;
         auto right = spk_unary (ctx);
         expr = spk_alloc_expr (SPK_EXPR_TYPE_BINARY);
         expr->binary = (spk_binary_expr_t) {
             .left = left,
-            .operator = operator,
+            .operator = *operator,
             .right = right
         };
     }
@@ -118,16 +121,15 @@ spk_term (spk_parser_ctx_t *ctx)
 {
     auto expr = spk_factor (ctx);
 
-    size_t prev = ctx->current;
     while (spk_match_any (ctx, 2, SPK_TOKEN_TYPE_MINUS,
                                   SPK_TOKEN_TYPE_PLUS)) {
-        auto operator = ctx->tokens->elems[prev];
+        auto operator = spk_prev (ctx);
         auto left = expr;
         auto right = spk_factor (ctx);
         expr = spk_alloc_expr (SPK_EXPR_TYPE_BINARY);
         expr->binary = (spk_binary_expr_t) {
             .left = left,
-            .operator = operator,
+            .operator = *operator,
             .right = right
         };
     }
@@ -140,18 +142,17 @@ spk_comparison (spk_parser_ctx_t *ctx)
 {
     auto expr = spk_term (ctx);
 
-    size_t prev = ctx->current;
     while (spk_match_any (ctx, 4, SPK_TOKEN_TYPE_GREATER,
                                   SPK_TOKEN_TYPE_GREATER_EQUAL,
                                   SPK_TOKEN_TYPE_LESS,
                                   SPK_TOKEN_TYPE_LESS_EQUAL)) {
-        auto operator = ctx->tokens->elems[prev];
+        auto operator = spk_prev (ctx);
         auto left = expr;
         auto right = spk_term (ctx);
         expr = spk_alloc_expr (SPK_EXPR_TYPE_BINARY);
         expr->binary = (spk_binary_expr_t) {
             .left = left,
-            .operator = operator,
+            .operator = *operator,
             .right = right
         };
     }
@@ -166,13 +167,13 @@ spk_equality (spk_parser_ctx_t *ctx)
 
     while (spk_match_any (ctx, 2, SPK_TOKEN_TYPE_NOT_EQUAL,
                                   SPK_TOKEN_TYPE_EQUAL_EQUAL)) {
-        auto operator = ctx->tokens->elems[ctx->current - 1];
+        auto operator = spk_prev (ctx);
         auto left = expr;
         auto right = spk_comparison (ctx);
         expr = spk_alloc_expr (SPK_EXPR_TYPE_BINARY);
         expr->binary = (spk_binary_expr_t) {
             .left = left,
-            .operator = operator,
+            .operator = *operator,
             .right = right
         };
     }
