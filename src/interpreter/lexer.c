@@ -68,6 +68,11 @@ spk_insert_token (spk_lexer_ctx_t *ctx, SPK_token_type type)
 
     switch (type) {
         case SPK_TOKEN_TYPE_IDENTIFIER:
+            if (strcmp ("print", buf) == 0) {
+                type = SPK_TOKEN_TYPE_PRINT;
+                break;
+            }
+
             // Check if buf matches any keywords
             for (size_t i = 0; i < SPK_COUNTOF (spk_reserved_keywords); ++i) {
                 if (strcmp (spk_reserved_keywords[i], buf) == 0) {

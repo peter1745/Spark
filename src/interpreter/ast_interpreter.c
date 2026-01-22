@@ -1,5 +1,6 @@
 #include "ast_interpreter.h"
 #include "expressions.h"
+#include "statements.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -36,28 +37,22 @@ spk_evaluate_binary (const spk_binary_expr_t *expr)
 {
     auto left = spk_evaluate_expression (expr->left);
     auto right = spk_evaluate_expression (expr->right);
-
-    printf ("%d", left.integer.value);
-
+ 
     assert (left.type == SPK_TOKEN_LITERAL_INTEGER);
     assert (right.type == SPK_TOKEN_LITERAL_INTEGER);
 
     int32_t result;
     switch (expr->operator.type) {
         case SPK_TOKEN_TYPE_PLUS:
-            printf (" + ");
             result = left.integer.value + right.integer.value;
             break;
         case SPK_TOKEN_TYPE_MINUS:
-            printf (" - ");
             result = left.integer.value - right.integer.value;
             break;
         case SPK_TOKEN_TYPE_MULTIPLY:
-            printf (" * ");
             result = left.integer.value * right.integer.value;
             break;
         case SPK_TOKEN_TYPE_DIVIDE:
-            printf (" / ");
             result = left.integer.value / right.integer.value;
             break;
         case SPK_TOKEN_TYPE_GREATER:
@@ -81,9 +76,6 @@ spk_evaluate_binary (const spk_binary_expr_t *expr)
         default:
             return (spk_token_literal_t) {};
     }
-
-    printf ("%d", right.integer.value);
-    printf (" = %d\n", result);
 
     return (spk_token_literal_t) {
         .type = SPK_TOKEN_LITERAL_INTEGER,
@@ -114,5 +106,46 @@ spk_evaluate_expression (const spk_expr_t *expr)
     }
 
     return evaluated_value;
+}
+
+void
+spk_interpret_statement (const spk_statement_t *stmt)
+{
+    switch (stmt->type) {
+        case SPK_STATEMENT_TYPE_PRINT:
+            auto msg = spk_evaluate_expression (stmt->print.expr);
+            switch (msg.type) {
+                case SPK_TOKEN_LITERAL_INTEGER:
+                    printf ("%d\n", msg.integer.value);
+                    break;
+                case SPK_TOKEN_LITERAL_STRING:
+                    printf ("%s\n", msg.string.value);
+                    break;
+                default:
+                    assert (false);
+            }
+
+            break;
+        case SPK_STATEMENT_TYPE_EXPR:
+            auto result = spk_evaluate_expression (stmt->expr.expr);
+#if 0
+            switch (result.type) {
+                case SPK_TOKEN_LITERAL_INTEGER:
+                    printf ("Evaluated to %d\n", result.integer.value);
+                    break;
+                case SPK_TOKEN_LITERAL_STRING:
+                    printf ("Evaluated to %s\n", result.string.value);
+                    break;
+                default:
+                    printf ("Couldn't evaluate. Invalid expression?\n");
+                    break;
+            }
+#else
+            (void)result;
+#endif
+            break;
+        default:
+            assert (false);
+    }
 }
 

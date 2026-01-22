@@ -24,22 +24,29 @@ spk_token_literal_to_string (const spk_token_literal_t *literal)
     return str ? strdup (str) : nullptr;
 }
 
-void
-spk_print_token (const spk_token_t *token)
+const char *
+spk_token_type_str (const SPK_token_type type)
 {
 #define SPK_TOKEN_TYPE(name, ...) \
     case name: \
-        type = #name; \
+        str = #name; \
         break;
     
-    const char* type = "Unknown";
-    switch (token->type) {
+    const char* str = "Unknown";
+    switch (type) {
         SPK_TOKEN_ENUM_ITER()
         default:
             break;
     }
 #undef SPK_TOKEN_TYPE
- 
+
+    return str;
+}
+
+void
+spk_print_token (const spk_token_t *token) 
+{
+    auto type = spk_token_type_str (token->type);
     char *literal = spk_token_literal_to_string (&token->literal);
     printf ("Token(%s, %d, '%s', %s)\n", type, token->line, token->value, literal);
     free (literal);

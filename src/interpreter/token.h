@@ -29,6 +29,7 @@
     SPK_TOKEN_TYPE(SPK_TOKEN_TYPE_STRING, nullptr) \
     SPK_TOKEN_TYPE(SPK_TOKEN_TYPE_INTEGER, nullptr) \
     \
+    SPK_TOKEN_TYPE(SPK_TOKEN_TYPE_PRINT, nullptr) \
     SPK_TOKEN_TYPE(SPK_TOKEN_TYPE_KEYWORD, nullptr) \
     \
     SPK_TOKEN_TYPE(SPK_TOKEN_TYPE_EOF, nullptr)
@@ -70,6 +71,7 @@ typedef struct spk_token_s {
 } spk_token_t;
 
 
+const char *spk_token_type_str (const SPK_token_type type);
 char *spk_token_literal_to_string (const spk_token_literal_t *literal);
 void spk_print_token (const spk_token_t *token);
 
