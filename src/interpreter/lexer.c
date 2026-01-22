@@ -1,6 +1,5 @@
 #include "lexer.h"
 #include "token.h"
-#include "../keywords.h"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -68,18 +67,12 @@ spk_insert_token (spk_lexer_ctx_t *ctx, SPK_token_type type)
 
     switch (type) {
         case SPK_TOKEN_TYPE_IDENTIFIER:
-            if (strcmp ("print", buf) == 0) {
-                type = SPK_TOKEN_TYPE_PRINT;
-                break;
+#define SPK_TOKEN_TYPE(t, n) \
+            if (n && strcmp(n, buf) == 0) { \
+                type = t; \
             }
-
-            // Check if buf matches any keywords
-            for (size_t i = 0; i < SPK_COUNTOF (spk_reserved_keywords); ++i) {
-                if (strcmp (spk_reserved_keywords[i], buf) == 0) {
-                    type = SPK_TOKEN_TYPE_KEYWORD;
-                    break;
-                }
-            }
+            SPK_TOKEN_ENUM_ITER();
+#undef SPK_TOKEN_TYPE
             break;
         case SPK_TOKEN_TYPE_STRING:
             literal.type = SPK_TOKEN_LITERAL_STRING;
