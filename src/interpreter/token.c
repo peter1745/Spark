@@ -25,7 +25,7 @@ spk_token_literal_to_string (const spk_token_literal_t *literal)
 }
 
 void
-spk_print_token (const spk_token_t token)
+spk_print_token (const spk_token_t *token)
 {
 #define SPK_TOKEN_TYPE(name, ...) \
     case name: \
@@ -33,15 +33,15 @@ spk_print_token (const spk_token_t token)
         break;
     
     const char* type = "Unknown";
-    switch (token.type) {
+    switch (token->type) {
         SPK_TOKEN_ENUM_ITER()
         default:
             break;
     }
 #undef SPK_TOKEN_TYPE
  
-    char *literal = spk_token_literal_to_string (&token.literal);
-    printf ("Token(%s, %d, '%s', %s)\n", type, token.line, token.value, literal);
+    char *literal = spk_token_literal_to_string (&token->literal);
+    printf ("Token(%s, %d, '%s', %s)\n", type, token->line, token->value, literal);
     free (literal);
 }
 

@@ -8,7 +8,6 @@
 #include <string.h>
 
 static uint32_t curr_line = 1;
-static size_t token_list_capacity = 0;
 
 typedef struct spk_lexer_ctx_s {
     const char *source;
@@ -48,19 +47,6 @@ spk_lexer_match (spk_lexer_ctx_t *ctx, char c)
 }
 
 static void
-spk_token_list_grow (spk_token_list_t *list, size_t cap)
-{
-    if (cap < token_list_capacity) {
-        return;
-    }
-
-    list->elems = reallocarray (list->elems, cap, sizeof (spk_token_t));
-    memset (list->elems + token_list_capacity, 0,
-            (cap - token_list_capacity) * sizeof (spk_token_t));
-    token_list_capacity = cap;
-}
-
-static void
 spk_lexer_report_err (uint32_t line, const char *msg)
 {
     printf ("Error: %s, line %d\n", msg, line);
@@ -69,13 +55,6 @@ spk_lexer_report_err (uint32_t line, const char *msg)
 static void
 spk_insert_token (spk_lexer_ctx_t *ctx, SPK_token_type type)
 {
-    auto list = &ctx->tokens;
-
-    if (list->count + 1 >= token_list_capacity) {
-        spk_token_list_grow(list, token_list_capacity +
-                                 (token_list_capacity / 2));
-    }
-
     char *buf = nullptr;
     if (!spk_lexer_at_end (ctx) && ctx->start && ctx->current) {
         size_t len = (size_t)(ctx->current - ctx->start) + 1;
@@ -111,13 +90,12 @@ spk_insert_token (spk_lexer_ctx_t *ctx, SPK_token_type type)
             break;
     }
 
-    list->elems[list->count] = (spk_token_t) {
+    darray_append_v (ctx->tokens, ((spk_token_t) {
         .type = type,
         .value = buf,
         .literal = literal,
         .line = curr_line
-    };
-    list->count++;
+    }));
 }
 
 static void
@@ -218,9 +196,8 @@ spk_tokenize_source (const char *src, size_t len)
         .source = src,
         .start = src,
         .current = src,
-        .tokens = { nullptr, 0 }
+        .tokens = darray_empty (sizeof (spk_token_t))
     };
-    spk_token_list_grow (&ctx.tokens, 10);
 
     while (!spk_lexer_at_end (&ctx)) {
         ctx.start = ctx.current;
@@ -315,12 +292,3 @@ spk_tokenize_source (const char *src, size_t len)
     return ctx.tokens;
 }
 
-void
-spk_free_token_list (spk_token_list_t *list)
-{
-    for (size_t i = 0; i < list->count; ++i) {
-        free (list->elems[i].value);
-    }
-
-    free (list->elems);
-}

@@ -1,6 +1,5 @@
 #pragma once
 
-// FIXME: Move tokens into their own header
 #include "token.h"
 
 /* grammar/expr.ebnf */

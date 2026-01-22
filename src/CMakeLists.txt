@@ -15,10 +15,11 @@ target_sources(spk-interp
 
         interpreter/token.c
         interpreter/lexer.c
-        interpreter/expressions.c
         interpreter/printer.c
         interpreter/ast_interpreter.c
-        interpreter/parser.c)
+        interpreter/parser.c
+
+        utils/darray.c)
 
 target_compile_options(spk-interp
     PRIVATE

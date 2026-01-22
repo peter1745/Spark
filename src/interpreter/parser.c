@@ -9,14 +9,20 @@
 #include <stdarg.h>
 
 typedef struct spk_parser_ctx_s {
-    const spk_token_list_t *tokens;
+    const spk_token_list_t tokens;
     size_t current;
 } spk_parser_ctx_t;
 
 static bool
+spk_parser_at_end (spk_parser_ctx_t *ctx)
+{
+    return ctx->current >= ctx->tokens->count;
+}
+
+static bool
 spk_match_any (spk_parser_ctx_t *ctx, ...)
 {
-    if (ctx->current >= ctx->tokens->count) {
+    if (spk_parser_at_end (ctx)) {
         return false;
     }
 
@@ -25,8 +31,8 @@ spk_match_any (spk_parser_ctx_t *ctx, ...)
     size_t count = va_arg (types, size_t);
     for (size_t i = 0; i < count; ++i) {
         auto type = va_arg (types, SPK_token_type);
-
-        if (ctx->tokens->elems[ctx->current].type == type) {
+        spk_token_t *token = darray_elem (ctx->tokens, ctx->current);
+        if (token->type == type) {
             ctx->current++;
             return true;
         }
@@ -38,7 +44,7 @@ spk_match_any (spk_parser_ctx_t *ctx, ...)
 static spk_token_t *
 spk_prev (spk_parser_ctx_t *ctx)
 {
-    return &ctx->tokens->elems[ctx->current - 1];
+    return darray_elem (ctx->tokens, ctx->current - 1);
 }
 
 static spk_expr_t *
@@ -188,7 +194,7 @@ spk_expression (spk_parser_ctx_t *ctx)
 }
 
 void
-spk_parser_recursive_descent (const spk_token_list_t *tokens)
+spk_parser_recursive_descent (const spk_token_list_t tokens)
 {
     spk_parser_ctx_t ctx = {
         .tokens = tokens

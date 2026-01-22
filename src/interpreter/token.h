@@ -71,5 +71,5 @@ typedef struct spk_token_s {
 
 
 char *spk_token_literal_to_string (const spk_token_literal_t *literal);
-void spk_print_token (const spk_token_t token);
+void spk_print_token (const spk_token_t *token);
 

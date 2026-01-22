@@ -82,17 +82,17 @@ spk_execute_file (const char *fpath)
     printf ("Successfully loaded file '%s'\n", fpath);
 
     auto tokens = spk_tokenize_source (file.data, file.size);
-    if (!tokens.elems) {
+    if (!tokens) {
         printf ("Lexer exited with errors.\n");
         return EXIT_FAILURE;
     }
-    for (size_t i = 0; i < tokens.count; ++i) {
-        spk_print_token (tokens.elems[i]);
+    for (size_t i = 0; i < tokens->count; ++i) {
+        spk_print_token (darray_elem (tokens, i));
     }
 
-    spk_parser_recursive_descent (&tokens);
+    spk_parser_recursive_descent (tokens);
+    darray_free (tokens);
 
-    spk_free_token_list (&tokens);
     free (file.data);
     return EXIT_SUCCESS;
 }
