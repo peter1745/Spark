@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "interpreter/token.h"
 #include "interpreter/lexer.h"
 #include "interpreter/parser.h"
+#include "interpreter/ast_interpreter.h"
 
 /*
  - Lexing / Scanning:
@@ -86,11 +86,14 @@ spk_execute_file (const char *fpath)
         printf ("Lexer exited with errors.\n");
         return EXIT_FAILURE;
     }
-    /*for (size_t i = 0; i < tokens->count; ++i) {
-        spk_print_token (darray_elem (tokens, i));
-    }*/
 
-    spk_parser_recursive_descent (tokens);
+    auto ast = spk_parser_recursive_descent (tokens);
+
+    for (size_t i = 0; i < ast->count; ++i) {
+        spk_interpret_statement(darray_elem (ast, i));
+    }
+
+    darray_free (ast);
     darray_free (tokens);
 
     free (file.data);

@@ -13,20 +13,20 @@ typedef struct spk_var_storage_s {
     spk_token_literal_t value;
 } spk_var_storage_t;
 
-typedef struct spk_global_reg_s {
+typedef struct spk_environment_s {
     darray_t *var_storage; // [spk_var_storage_t, ...]
-} spk_global_reg_t;
+} spk_environment_t;
 
-static spk_global_reg_t global_reg = {
+static spk_environment_t global_env = {
     .var_storage = nullptr
 };
 
-static const spk_token_literal_t *
+static spk_token_literal_t *
 spk_global_reg_find_var (const char *name)
 {
     // FIXME: Linear search = bad
-    for (size_t i = 0; i < global_reg.var_storage->count; ++i) {
-        spk_var_storage_t *storage = darray_elem (global_reg.var_storage, i);
+    for (size_t i = 0; i < global_env.var_storage->count; ++i) {
+        spk_var_storage_t *storage = darray_elem (global_env.var_storage, i);
         if (strcmp (storage->name, name) == 0) {
             return &storage->value;
         }
@@ -38,8 +38,8 @@ spk_global_reg_find_var (const char *name)
 static void
 spk_global_reg_add_var (const spk_var_statement_t *var)
 {
-    if (!global_reg.var_storage) {
-        global_reg.var_storage = darray_empty (sizeof (spk_var_storage_t));
+    if (!global_env.var_storage) {
+        global_env.var_storage = darray_empty (sizeof (spk_var_storage_t));
     }
 
     if (spk_global_reg_find_var (var->name.value)) {
@@ -59,7 +59,7 @@ spk_global_reg_add_var (const spk_var_statement_t *var)
         storage.value = spk_evaluate_expression (var->initializer);
     }
 
-    darray_append (global_reg.var_storage, &storage);
+    darray_append (global_env.var_storage, &storage);
 }
 
 static spk_token_literal_t
@@ -160,7 +160,7 @@ spk_evaluate_expression (const spk_expr_t *expr)
         case SPK_EXPR_TYPE_BINARY:
             evaluated_value = spk_evaluate_binary (&expr->binary);
             break;
-        case SPK_EXPR_TYPE_VAR:
+        case SPK_EXPR_TYPE_VAR: {
             auto var_storage = spk_global_reg_find_var (expr->var.name.value);
 
             if (!var_storage) {
@@ -170,6 +170,19 @@ spk_evaluate_expression (const spk_expr_t *expr)
 
             evaluated_value = *var_storage;
             break;
+        }
+        case SPK_EXPR_TYPE_ASSIGNMENT: {
+            auto var_storage = spk_global_reg_find_var (expr->assignment.name.value);
+
+            if (!var_storage) {
+                printf ("Error trying to assign to an unknown variable %s!\n", expr->assignment.name.value);
+                break;
+            }
+
+            evaluated_value = spk_evaluate_expression (expr->assignment.rhs);
+            *var_storage = evaluated_value;
+            break;
+        }
         default:
             assert (false);
     }

@@ -1,0 +1,7 @@
+var x = 10;
+var y = 20;
+var z = y = 10;
+print z;
+print y = 80;
+print y;
+

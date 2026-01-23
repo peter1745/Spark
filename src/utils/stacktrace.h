@@ -22,11 +22,14 @@ __spk_stacktrace_entry_addr (char *entry)
 inline static void
 spk_dump_stacktrace ()
 {
+    // NOTE: This implementation isn't strictly *great* but
+    //       it works for now.
+
     printf ("Stacktrace:\n");
     static void *addrs[SPK_MAX_STACKTRACE_ENTRIES] = { 0 };
     auto num_entries = backtrace (addrs, SPK_MAX_STACKTRACE_ENTRIES);
     auto symbols = backtrace_symbols (addrs, num_entries);
-    for (int32_t i = 0; i < num_entries; ++i) {
+    for (int32_t i = 1; i < num_entries; ++i) {
         auto addr = __spk_stacktrace_entry_addr (symbols[i]);
         static char buf[256] = { 0 };
         memset (buf, 0, sizeof (buf));
@@ -42,7 +45,7 @@ spk_dump_stacktrace ()
         fgets (buf + 128, 128, fd);
         *strchr (buf + 128, '\n') = 0;
 
-        printf ("%d> %s: %s\n", i, buf, buf + 128);
+        printf ("\t%d> %s: %s\n", i - 1, buf, buf + 128);
         pclose (fd);
     }
     free (symbols);

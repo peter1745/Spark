@@ -4,6 +4,7 @@
 #include "printer.h"
 #include "lexer.h"
 #include "ast_interpreter.h"
+#include "../utils/stacktrace.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,6 +45,8 @@ spk_consume (spk_parser_ctx_t *ctx, SPK_token_type type, const char *err)
             spk_token_t *next = darray_elem(ctx->tokens, ctx->current - 2);
             printf ("\tNext: %s\n", spk_token_type_str (next->type));
         }
+
+        spk_dump_stacktrace ();
     }
     return token;
 }
@@ -226,9 +229,31 @@ spk_equality (spk_parser_ctx_t *ctx)
 }
 
 static spk_expr_t *
+spk_assignment (spk_parser_ctx_t *ctx)
+{
+    auto expr = spk_equality (ctx);
+
+    if (spk_match_any (ctx, 1, SPK_TOKEN_TYPE_EQUAL)) {
+        auto value = spk_assignment (ctx);
+
+        if (expr->type == SPK_EXPR_TYPE_VAR) {
+            auto name = expr->var.name;
+            free (expr);
+            expr = spk_alloc_expr (SPK_EXPR_TYPE_ASSIGNMENT);
+            expr->assignment = (spk_assignment_expr_t) {
+                .name = name,
+                .rhs = value
+            };
+        }
+    }
+
+    return expr;
+}
+
+static spk_expr_t *
 spk_expression (spk_parser_ctx_t *ctx)
 {
-    return spk_equality (ctx);
+    return spk_assignment (ctx);
 }
 
 static spk_statement_t
@@ -238,7 +263,7 @@ spk_expression_statement (spk_parser_ctx_t *ctx)
 
     if (!expr) {
         ctx->current++;
-        return (spk_statement_t) { SPK_STATEMENT_TYPE_EMPTY };
+        return (spk_statement_t) { .type = SPK_STATEMENT_TYPE_EMPTY };
     }
 
     spk_consume(ctx, SPK_TOKEN_TYPE_SEMICOLON, "Expected ; after expression.");
@@ -305,7 +330,7 @@ spk_declaration (spk_parser_ctx_t *ctx)
     return spk_statement (ctx);
 }
 
-void
+darray_t *
 spk_parser_recursive_descent (const spk_token_list_t tokens)
 {
     spk_parser_ctx_t ctx = {
@@ -320,70 +345,6 @@ spk_parser_recursive_descent (const spk_token_list_t tokens)
         }
     }
 
-    for (size_t i = 0; i < ctx.statements->count; ++i) {
-        spk_statement_t *stmt = darray_elem (ctx.statements, i);
-        spk_interpret_statement (stmt);
-
-#if 0
-        spk_expr_t *expr = nullptr;
-
-        switch (stmt->type) {
-            case SPK_STATEMENT_TYPE_PRINT:
-                printf ("PrintStatement:\n");
-                expr = stmt->print.expr;
-                break;
-            case SPK_STATEMENT_TYPE_EXPR:
-                printf ("ExpressionStatement:\n");
-                expr = stmt->expr.expr;
-                break;
-            default:
-                printf ("Unknown statement:\n");
-                break;
-        }
-
-        if (expr) {
-            spk_print_expression (expr);
-
-            auto result = spk_evaluate_expression (expr);
-
-            switch (result.type) {
-                case SPK_TOKEN_LITERAL_INTEGER:
-                    printf ("Evaluated to %d\n", result.integer.value);
-                    break;
-                case SPK_TOKEN_LITERAL_STRING:
-                    printf ("Evaluated to %s\n", result.string.value);
-                    break;
-                default:
-                    printf ("Couldn't evaluate. Invalid expression?\n");
-                    break;
-            }
-        }
-#endif
-    }
-
-    /*spk_expr_t *expr = nullptr;
-    do {
-        expr = spk_expression (&ctx);
-
-        if (expr) {
-            spk_print_expression (expr);
-
-            auto result = spk_evaluate_expression (expr);
-
-            switch (result.type) {
-                case SPK_TOKEN_LITERAL_INTEGER:
-                    printf ("Evaluated to %d\n", result.integer.value);
-                    break;
-                case SPK_TOKEN_LITERAL_STRING:
-                    printf ("Evaluated to %s\n", result.string.value);
-                    break;
-                default:
-                    printf ("Couldn't evaluate. Invalid expression?\n");
-                    break;
-            }
-        }
-
-        ctx.current++;
-    } while (ctx.current < ctx.tokens->count);*/
+    return ctx.statements;
 }
 

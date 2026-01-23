@@ -29,22 +29,29 @@ typedef struct spk_var_expr_s {
     spk_token_t name;
 } spk_var_expr_t;
 
+typedef struct spk_assignment_expr_s {
+    spk_token_t name;
+    spk_expr_t *rhs;
+} spk_assignment_expr_t;
+
 typedef enum {
     SPK_EXPR_TYPE_LITERAL,
     SPK_EXPR_TYPE_GROUPING,
     SPK_EXPR_TYPE_UNARY,
     SPK_EXPR_TYPE_BINARY,
     SPK_EXPR_TYPE_VAR,
+    SPK_EXPR_TYPE_ASSIGNMENT,
 } SPK_expr_type;
 
 typedef struct spk_expr_s {
     SPK_expr_type type;
     union {
-        spk_literal_expr_t  literal;
-        spk_grouping_expr_t grouping;
-        spk_unary_expr_t    unary;
-        spk_binary_expr_t   binary;
-        spk_var_expr_t      var;
+        spk_literal_expr_t      literal;
+        spk_grouping_expr_t     grouping;
+        spk_unary_expr_t        unary;
+        spk_binary_expr_t       binary;
+        spk_var_expr_t          var;
+        spk_assignment_expr_t   assignment;
     };
 } spk_expr_t;
 

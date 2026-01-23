@@ -3,5 +3,5 @@
 #include "../utils/darray.h"
 
 typedef darray_t *spk_token_list_t;
-void spk_parser_recursive_descent (const spk_token_list_t tokens);
+darray_t *spk_parser_recursive_descent (const spk_token_list_t tokens);
 
