@@ -1,27 +1,21 @@
 cmake_minimum_required(VERSION 4.0)
 
-project(spk-interp LANGUAGES C)
+project(SparkVM LANGUAGES C)
 
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_executable(spk-interp)
+add_executable(SparkVM)
 
-target_sources(spk-interp
+target_sources(SparkVM
     PRIVATE
         main.c
 
-        interpreter/token.c
-        interpreter/lexer.c
-        interpreter/printer.c
-        interpreter/ast_interpreter.c
-        interpreter/parser.c
-
         utils/darray.c)
 
-target_compile_options(spk-interp
+target_compile_options(SparkVM
     PRIVATE
         -g3
         -Wall

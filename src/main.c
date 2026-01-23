@@ -2,31 +2,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "interpreter/lexer.h"
-#include "interpreter/parser.h"
-#include "interpreter/ast_interpreter.h"
-
-/*
- - Lexing / Scanning:
-    Takes in source code and tokenizes it into a more
-    computationally useful format.
- - Parsing:
-    Takes in a list of tokens and produces an Abstract Syntax Tree (AST)
-    which represents the "grammar" of the language.
-    It gives structure to the tokens.
- - Static Analysis:
-    - Binding / Resolution: Figure out *where* a given identifier is defined
-      and link the two together. Assigns scope to an identifier.
-      Performs type checking. (Statically typed)
-
- - Expression: Produces a value
- - Statement:  Produces an "effect". E.g "print" produces text on the screen
-
- - Argument: Value you pass to a function *call*
- - Parameter: Variable that holds the passed argument value.
-              Is part of a function *declaration*
-*/
-
 static void
 print_help ()
 {
@@ -70,36 +45,6 @@ spk_read_file (const char *fpath)
     return result;
 }
 
-static int32_t
-spk_execute_file (const char *fpath)
-{
-    auto file = spk_read_file (fpath);
-    if (!file.data) {
-        printf ("Failed reading spk file, exiting...\n");
-        return EXIT_FAILURE;
-    }
-
-    printf ("Successfully loaded file '%s'\n", fpath);
-
-    auto tokens = spk_tokenize_source (file.data, file.size);
-    if (!tokens) {
-        printf ("Lexer exited with errors.\n");
-        return EXIT_FAILURE;
-    }
-
-    auto ast = spk_parser_recursive_descent (tokens);
-
-    for (size_t i = 0; i < ast->count; ++i) {
-        spk_interpret_statement(darray_elem (ast, i));
-    }
-
-    darray_free (ast);
-    darray_free (tokens);
-
-    free (file.data);
-    return EXIT_SUCCESS;
-}
-
 int
 main (int argc, char **argv)
 {
@@ -108,6 +53,10 @@ main (int argc, char **argv)
         return EXIT_SUCCESS;
     }
 
-    return spk_execute_file (argv[1]);
+    auto file = spk_read_file (argv[1]);
+    printf ("%s\n", file.data);
+    free (file.data);
+
+    return EXIT_SUCCESS;
 }
 
