@@ -54,7 +54,6 @@ main (int argc, char **argv)
     }
 
     auto file = spk_read_file (argv[1]);
-    printf ("%s\n", file.data);
     free (file.data);
 
     return EXIT_SUCCESS;
