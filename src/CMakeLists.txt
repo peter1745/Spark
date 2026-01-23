@@ -23,7 +23,6 @@ target_sources(spk-interp
 
 target_compile_options(spk-interp
     PRIVATE
-        -std=gnu23
         -g3
         -Wall
         -Wextra
