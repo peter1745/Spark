@@ -18,6 +18,9 @@ Token_Dump (const spk_token_t *token)
             }
             break;
         }
+        case SPK_TOKEN_string:
+            printf ("(%s)", token->string.value.value);
+            break;
         default:
             break;
     }

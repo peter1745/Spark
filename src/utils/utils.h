@@ -5,9 +5,22 @@
 #include <stdlib.h>
 
 static inline bool
+SPK_IsAlpha (char c)
+{
+    return (c >= 'a' && c <= 'z') ||
+           (c >= 'A' && c <= 'Z');
+}
+
+static inline bool
 SPK_IsDigit (char c)
 {
     return isdigit ((unsigned char)c);
+}
+
+static inline bool
+SPK_IsAlphaNumeric (char c)
+{
+    return SPK_IsAlpha (c) || SPK_IsDigit (c);
 }
 
 static inline int64_t

@@ -13,6 +13,7 @@
 #define __SPK_DATALESS_TOKEN char unused;
 
 SPK_TOKEN(number, spk_numeric_literal_t value;)
+SPK_TOKEN(string, spk_string_literal_t value;)
 SPK_TOKEN(semicolon, __SPK_DATALESS_TOKEN)
 SPK_TOKEN(add, __SPK_DATALESS_TOKEN)
 SPK_TOKEN(sub, __SPK_DATALESS_TOKEN)

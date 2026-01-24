@@ -101,6 +101,35 @@ generate_numeric_token (spk_scanner_t *scanner)
     };
 }
 
+static spk_token_t
+generate_string_token (spk_scanner_t *scanner)
+{
+    while (*scanner->curr != '"') {
+        scanner_consume (scanner);
+    }
+
+    if (scanner_at_end (scanner)) {
+        scanner_report_error (scanner, "Unterminated string", '"');
+        return (spk_token_t) {};
+    }
+
+    // Consume closing quote
+    scanner_consume (scanner);
+
+    size_t len = (size_t)(scanner->curr - scanner->token_start);
+    spk_string_literal_t string = {
+        .value = calloc (len, sizeof (char)),
+        .len = len
+    };
+
+    memcpy (string.value, scanner->token_start, len * sizeof (char));
+
+    return (spk_token_t) {
+        .type = SPK_TOKEN_string,
+        .string = { string }
+    };
+}
+
 static bool
 generate_token (spk_scanner_t *scanner, spk_token_t *token)
 {
@@ -128,6 +157,10 @@ generate_token (spk_scanner_t *scanner, spk_token_t *token)
         case __SIMPLE_TOKEN (mul, '*');
         case __SIMPLE_TOKEN (div, '/');
         case __SIMPLE_TOKEN (eof, '\0');
+        case '"':
+            *token = generate_string_token (scanner);
+            generated_valid_token = true;
+            break;
         default:
             if (SPK_IsDigit (c)) {
                 *token = generate_numeric_token (scanner);

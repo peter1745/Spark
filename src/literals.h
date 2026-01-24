@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stddef.h>
 
 typedef enum {
     SPK_LITERAL_NUMERIC,
@@ -22,6 +23,7 @@ typedef struct spk_numeric_literal_s {
 
 typedef struct spk_string_literal_s {
     char *value;
+    size_t len;
 } spk_string_literal_t;
 
 typedef struct spk_literal_s {
