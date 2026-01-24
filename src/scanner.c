@@ -215,6 +215,11 @@ Scanner_GenerateTokens (spk_scanner_t *scanner)
         }
     }
 
+    // Ensure last token is always EOF
+    darray_append_v(scanner->tokens, (spk_token_t) {
+        .type = SPK_TOKEN_eof
+    });
+
     printf ("Scanner finished with %d errors.\n", scanner->num_errors);
     return result;
 }
