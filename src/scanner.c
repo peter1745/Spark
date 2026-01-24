@@ -101,15 +101,16 @@ generate_numeric_token (spk_scanner_t *scanner)
     };
 }
 
-spk_token_t
-generate_token (spk_scanner_t *scanner)
+static bool
+generate_token (spk_scanner_t *scanner, spk_token_t *token)
 {
-    spk_token_t token;
+    bool generated_valid_token = false;
 
 #define __MAKE_TOKEN(t) (spk_token_t) { .type = t }
 #define __SIMPLE_TOKEN(tok, c) \
     c: \
-        token = __MAKE_TOKEN (SPK_TOKEN_##tok); \
+        *token = __MAKE_TOKEN (SPK_TOKEN_##tok); \
+        generated_valid_token = true; \
         break
 
     auto c = scanner_consume (scanner);
@@ -129,14 +130,15 @@ generate_token (spk_scanner_t *scanner)
         case __SIMPLE_TOKEN (eof, '\0');
         default:
             if (SPK_IsDigit (c)) {
-                token = generate_numeric_token (scanner);
+                *token = generate_numeric_token (scanner);
+                generated_valid_token = true;
             } else {
                 scanner_report_error (scanner, "Unknown token", c);
             }
             break;
     }
 
-    return token;
+    return generated_valid_token;
 }
 
 spk_scanner_t *
@@ -169,11 +171,12 @@ Scanner_GenerateTokens (spk_scanner_t *scanner)
     while (!scanner_at_end (scanner)) {
         scanner->token_start = scanner->curr;
 
-        auto token = generate_token (scanner);
-
-        if (!scanner_had_error (scanner)) {
+        spk_token_t token;
+        if (generate_token (scanner, &token)) {
             darray_append (scanner->tokens, &token);
-        } else {
+        }
+
+        if (scanner_had_error (scanner)) {
             // TODO: Do something?
             result = SPK_SCANNER_ERROR;
         }
@@ -188,6 +191,8 @@ Scanner_DumpTokens (spk_scanner_t *scanner)
 {
     spk_token_t *token;
     darray_iter (scanner->tokens, token) {
+        size_t i = (size_t)(token - (spk_token_t *)scanner->tokens->data);
+        printf ("%lu: ", i);
         Token_Dump (token);
     }
 }
