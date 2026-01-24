@@ -24,3 +24,8 @@ void     *darray_elem (darray_t *arr, size_t idx);
     darray_append (_arr, &_value); \
 } while (false)
 
+#define darray_iter(arr, ptr) for ( \
+        ptr = (arr)->data; \
+        ptr < ((typeof (ptr)) (arr)->data) + (arr)->count; \
+        ++ptr)
+

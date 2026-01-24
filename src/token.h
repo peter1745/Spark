@@ -8,6 +8,18 @@ typedef enum {
     #include "token_list.h"
 } spk_token_type_e;
 
+static inline const char *
+Token_Type_ToString (spk_token_type_e type)
+{
+#define SPK_TOKEN(name, ...) case SPK_TOKEN_##name: return "SPK_TOKEN_"#name;
+    switch (type) {
+        #include "token_list.h"
+    }
+#undef SPK_TOKEN
+
+    return "Unknown";
+}
+
 typedef struct spk_token_s {
     spk_token_type_e type;
 
@@ -16,4 +28,6 @@ typedef struct spk_token_s {
         #include "token_list.h"
     };
 } spk_token_t;
+
+void Token_Dump (const spk_token_t *token);
 

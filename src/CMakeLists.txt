@@ -12,6 +12,8 @@ add_executable(SparkVM)
 target_sources(SparkVM
     PRIVATE
         main.c
+        scanner.c
+        token.c
 
         utils/darray.c)
 

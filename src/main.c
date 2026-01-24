@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include "scanner.h"
+
 static void
 print_help ()
 {
@@ -14,7 +16,7 @@ typedef struct spk_file_s {
 } spk_file_t;
 
 static spk_file_t
-spk_read_file (const char *fpath)
+read_file (const char *fpath)
 {
     spk_file_t result = { nullptr, 0 };
 
@@ -53,8 +55,17 @@ main (int argc, char **argv)
         return EXIT_SUCCESS;
     }
 
-    auto file = spk_read_file (argv[1]);
+    auto file = read_file (argv[1]);
+    if (!file.data) {
+        return EXIT_FAILURE;
+    }
+    auto scanner = Scanner_New (argv[1], file.data);
     free (file.data);
+    
+    Scanner_GenerateTokens (scanner);
+    Scanner_DumpTokens (scanner);
+
+    Scanner_Free (scanner);
 
     return EXIT_SUCCESS;
 }
