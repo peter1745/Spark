@@ -3,6 +3,9 @@
 #include <ctype.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+
+#define SPK_CountOf(arr) sizeof (arr) / sizeof (*arr)
 
 static inline bool
 SPK_IsAlpha (char c)
@@ -31,5 +34,11 @@ SPK_StringToInt64 (char *beg, char *end)
         result = result * 10 + (beg[i] - '0');
     }
     return result;
+}
+
+static inline bool
+SPK_StringEq (const char *str0, const char *str1)
+{
+    return strcmp (str0, str1) == 0;
 }
 
